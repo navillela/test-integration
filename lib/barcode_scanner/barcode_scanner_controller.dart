@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
+bool isProcessing = false;
 
 class BarcodeScannerWithController extends StatefulWidget {
   const BarcodeScannerWithController({Key? key}) : super(key: key);
@@ -20,15 +21,17 @@ class _BarcodeScannerWithControllerState
   FlutterTts flutterTts = FlutterTts();
 
   MobileScannerController controller = MobileScannerController(
-    torchEnabled: true,
+    torchEnabled: false,
     formats: [BarcodeFormat.qrCode],
-    facing: CameraFacing.front,
+    //facing: CameraFacing.front,
   );
 
   bool isStarted = true;
 
+
   @override
   Widget build(BuildContext context) {
+    print("-----------------------------      build      -------------------------------------------");
     return Scaffold(
       backgroundColor: Colors.black,
       body: Builder(
@@ -38,20 +41,45 @@ class _BarcodeScannerWithControllerState
               MobileScanner(
                 controller: controller,
                 fit: BoxFit.contain,
-                // allowDuplicates: true,
+                allowDuplicates: true,
                 // controller: MobileScannerController(
                 //   torchEnabled: true,
                 //   facing: CameraFacing.front,
                 // ),
-                onDetect: (barcode, args) {
+                onDetect: (barcode, args) async {
+                  if(isProcessing) {
+                    print("already processed - returned");
+                    return;
+                  }
+                  isProcessing = true;
+                  await controller.stop();
                   print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ ${barcode.rawValue}");
                   print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ ${args.toString()}");
-                  setState(() {
-                    this.barcode = barcode.rawValue;
-                  });
                   if(barcode.rawValue != null) {
-                    flutterTts.speak("인증되었습니다");
+                    this.barcode = barcode.rawValue;
+
+                    // if(controller.isStarting) {
+                    //   controller.isStarting = false;
+                    //   print("camera stop");
+                    //
+                    // }
+
+                    if(this.barcode == barcode.rawValue) {
+                      await flutterTts.speak("이미 처리된 티켓입니다.");
+                    }else {
+                      await flutterTts.speak("인증되었습니다");
+                    }
+                    await Future.delayed(Duration(seconds: 1));
+
+                    // if(!controller.isStarting) {
+                    //   controller.isStarting = true;
+                    //   print("camera start");
+                    //
+                    //   await controller.start();
+                    //  }
                   }
+                    await controller.start();
+                    isProcessing = false;
                 },
               ),
               Align(
