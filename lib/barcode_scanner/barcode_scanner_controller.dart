@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+
 
 class BarcodeScannerWithController extends StatefulWidget {
   const BarcodeScannerWithController({Key? key}) : super(key: key);
@@ -15,10 +17,12 @@ class _BarcodeScannerWithControllerState
     with SingleTickerProviderStateMixin {
   String? barcode;
 
+  FlutterTts flutterTts = FlutterTts();
+
   MobileScannerController controller = MobileScannerController(
     torchEnabled: true,
     formats: [BarcodeFormat.qrCode],
-    //facing: CameraFacing.front,
+    facing: CameraFacing.front,
   );
 
   bool isStarted = true;
@@ -45,6 +49,9 @@ class _BarcodeScannerWithControllerState
                   setState(() {
                     this.barcode = barcode.rawValue;
                   });
+                  if(barcode.rawValue != null) {
+                    flutterTts.speak("인증되었습니다");
+                  }
                 },
               ),
               Align(
