@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-
+이주 성공?!
 bool isProcessing = false;
 
 class BarcodeScannerWithController extends StatefulWidget {
